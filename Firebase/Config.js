@@ -1,9 +1,12 @@
 import {initializeApp} from 'firebase/app'
 import {getFirestore} from 'firebase/firestore'
 
-const firebaseConfig = {
-   //TÄHÄN API KEYS
-  };
+
+   
+   const firebaseConfig = {
+     //TÄHÄN API KEYS
+    };
+  
   
   // Initialize Firebase
  initializeApp(firebaseConfig);
