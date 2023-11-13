@@ -2,7 +2,8 @@ import {initializeApp} from 'firebase/app'
 import {getFirestore} from 'firebase/firestore'
 
 const firebaseConfig = {
-   //test
+   //test more test
+   //kekeke
   };
   
   // Initialize Firebase
