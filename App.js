@@ -17,6 +17,23 @@ export default function App() {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
 
+  const storeUserData = async (value) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem('user', jsonValue);
+    }
+    catch (e){
+      console.log("Error in signin:" + e)
+    }
+  }
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      AsyncStorage.removeItem('user');
+      setAuthenticated(false);
+    });
+    return () => unsubscribe();
+  }, [auth]);
+
   function handleSubmit(event, email, password){
     event.preventDefault();
     console.log(email);
@@ -39,24 +56,6 @@ export default function App() {
         const errorCode = error.code;
         const errorMessage = error.message;
       });
-  }
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      AsyncStorage.removeItem('user');
-      setAuthenticated(false);
-    });
-    return () => unsubscribe();
-  }, [auth]);
-
-  const storeUserData = async (value) => {
-    try {
-      const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem('user', jsonValue);
-    }
-    catch (e){
-      console.log("Error in signin:" + e)
-    }
   }
 
   const Tab = createBottomTabNavigator();
