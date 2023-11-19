@@ -1,8 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, Button } from 'react-native';
-import { firestore} from 'firebase/firestore';
-import {auth, user} from './Firebase/Config';
+import {auth} from './Firebase/Config';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import {AntDesign} from '@expo/vector-icons';
@@ -11,18 +9,10 @@ import HomeScreen from './Views/HomeSreen';
 import Lomake from './Views/Lomake';
 import Account from './Views/Account';
 import Contact from './Views/ContactInfo';
-import { signInWithEmailAndPassword, getAuth, onAuthStateChanged, initializeAuth } from "firebase/auth";
-//import ReactNativeAsyncStorage from 'react-native';
-import {initializeApp} from 'firebase/app'
-/*const application = initializeAuth(app, {
-  persistence: getReactNativePersistence(ReactNativeAsyncStorage)
-});*/
-
-//const auth = getAuth(app);
-
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function App() {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
@@ -34,11 +24,11 @@ export default function App() {
     console.log(auth);
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // Signed in 
         console.log("success");
         const user = userCredential.user;
+        setAuthenticated(true);
+        storeUserData(user);
         console.log(user);
-        // ...
       })
       .catch((error) => {
         console.log("Fail");
@@ -46,17 +36,27 @@ export default function App() {
         const errorMessage = error.message;
       });
   }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setAuthenticated(!!user);
+      AsyncStorage.removeItem('user');
+      setAuthenticated(false);
     });
     return () => unsubscribe();
   }, [auth]);
 
+  const storeUserData = async (value) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem('user', jsonValue);
+    }
+    catch (e){
+      console.log("Error in signin:" + e)
+    }
+  }
 
   const Tab = createBottomTabNavigator();
   if(authenticated){
-    //const uid = user.uid;
     return (
       <NavigationContainer>
       <Tab.Navigator initialRouteName='home'
