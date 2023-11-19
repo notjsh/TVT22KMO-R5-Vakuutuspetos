@@ -10,6 +10,7 @@ export default function HomeScreen({ navigation }) {
   const getUserData = async () => {
     try {
       const jsonvalue = await AsyncStorage.getItem('user');
+      console.log(jsonvalue);
       return jsonvalue != null ? JSON.parse(jsonvalue) : null;
     } catch (e) {
       console.log("error in homescreen localstorage read: " + e);
@@ -44,7 +45,7 @@ export default function HomeScreen({ navigation }) {
       }
     });
   }, [navigation]);
-console.log(user);
+
   return (
     <View>
       <Text>Welcome, {user.email}!</Text>

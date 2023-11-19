@@ -26,9 +26,10 @@ export default function App() {
       .then((userCredential) => {
         console.log("success");
         const user = userCredential.user;
-        setAuthenticated(true);
         storeUserData(user);
-        console.log(user);
+
+        setAuthenticated(true);
+        //console.log(user);
       })
       .catch((error) => {
         console.log("Fail");
