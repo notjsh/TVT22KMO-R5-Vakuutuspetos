@@ -60,7 +60,10 @@ export default function HomeScreen({ navigation }) {
   }, [navigation]);
 
   if (!ilmoitusDataLoaded) {
-    return <View><Text>Loading...</Text></View>;
+    return <View>
+            <Text>Welcome, {userData.email}!</Text>
+            <Text>Loading...</Text>
+        </View>;
   }else{
     return (
         <View>
