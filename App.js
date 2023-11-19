@@ -4,7 +4,7 @@ import {auth} from './Firebase/Config';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import {AntDesign} from '@expo/vector-icons';
-import LoginScreen from './Views/LoginScreen';
+//import LoginScreen from './Views/LoginScreen';
 import HomeScreen from './Views/HomeSreen';
 import Lomake from './Views/Lomake';
 import Account from './Views/Account';
@@ -24,15 +24,18 @@ export default function App() {
     console.log(auth);
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        console.log("success");
+
         const user = userCredential.user;
+        console.log(auth);
+        console.log("login succeeded");
+        console.log(user);
         storeUserData(user);
 
         setAuthenticated(true);
         //console.log(user);
       })
       .catch((error) => {
-        console.log("Fail");
+        console.log("Login FAIL on user");
         const errorCode = error.code;
         const errorMessage = error.message;
       });
