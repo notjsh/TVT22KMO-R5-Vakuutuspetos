@@ -1,61 +1,85 @@
-import React from "react";
-import { useLayoutEffect, useState, useEffect } from "react";
-import {firestore, collection, query, onSnapshot, doc, USERS, where, serverTimestamp} from "../Firebase/Config"
-import { QuerySnapshot } from "firebase/firestore";
-import { SafeAreaView, ScrollView, Text, View } from "react-native";
-import { convertFirebaseTimeStampToJS } from "../Helpers/Timestamp";
+import React, { useLayoutEffect, useState, useEffect } from "react";
+import { View, Button, Text } from "react-native";
+import { collection, getDocs, query, where } from 'firebase/firestore';
+//import { firestore } from 'firebase/firestore';
+import {firestore} from '../Firebase/Config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function HomeScreen({navigation}){
-    useLayoutEffect(()=>{
-        navigation.setOptions({
-            headerStyle:{
-                backgroundColor: 'steelblue'
-            }
-            
-        })
-    }, [])
+export default function HomeScreen({ navigation }) {
+  const [ilmoitukset, setIlmoitukset] = useState([]);
+  const [userData, setUserData] = useState(null); // New state for user data
+  const [userDataLoaded, setUserDataLoaded] = useState(false); // New state to track if user data has been loaded
+  const [ilmoitusDataLoaded, setIlmoitusDataLoaded] = useState(false); // New state to track if user data has been loaded
 
-const [sent, setSent]= useState([])
-
-useEffect(()=>{
-const q = query(collection(firestore, USERS, "testuser", "ilmoitukset"))
-
-const unsubscribe = onSnapshot(q,(querySnapshot)=>{
-    const tempSent = []
-
-    querySnapshot.forEach((doc)=>{
-        const sentObject={
-            id: doc.id,
-            title: doc.data().otsikko,
-            state: doc.data().tila,
-            created: convertFirebaseTimeStampToJS(doc.data().lähetetty)
-
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const jsonValue = await AsyncStorage.getItem('user');
+        if (jsonValue !== null) {
+          const parsedUser = JSON.parse(jsonValue);
+          setUserData(parsedUser);
+          setUserDataLoaded(true); // Mark user data as loaded
         }
-        tempSent.push(sentObject)
-    })
-    setSent(tempSent)
-    console.log(sent)
-})
-return()=>{
-    unsubscribe()
-}
-}, [])
+      } catch (error) {
+        console.log("Error in homescreen AsyncStorage read: " + error);
+      }
+    };
 
-return(
-    <SafeAreaView>
-        <ScrollView>
-            <Text>Alla näet lähettämäsi vahinkoilmoitukset sekä niiden tilat. Klikkaamalla näet lisätietoja.</Text>
-            {
-                sent.map((report)=>(
-                    <View key={report.id}>
-                        
-                        <Text>{report.title} {report.created}</Text>
-                        <Text>{report.state}</Text>
-                        
-                    </View>
-                ))
-            }
-        </ScrollView>
-    </SafeAreaView>
-)
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (userDataLoaded) {
+      // Only fetch data if user data has been loaded
+      const fetchIlmoitukset = async () => {
+        const q = query(
+          collection(firestore, 'ilmoitukset'),
+          where('userUID', '==', userData.uid)
+        );
+
+        const querySnapshot = await getDocs(q);
+        const documents = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          data: doc.data(),
+        }));
+
+        setIlmoitukset(documents);
+        setIlmoitusDataLoaded(true);
+      };
+
+      fetchIlmoitukset();
+    }
+  }, [userData, userDataLoaded]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: 'steelblue'
+      }
+    });
+  }, [navigation]);
+
+  if (!ilmoitusDataLoaded) {
+    return <View>
+            <Text>Welcome, {userData.email}!</Text>
+            <Text>Loading...</Text>
+        </View>;
+  }else{
+    return (
+        <View>
+            <Text>Welcome, {userData.email}!</Text>
+            {ilmoitukset.map((ilmoitus) => (
+                <Button
+                key={ilmoitus.id}
+                title={ilmoitus.data.topic}
+                onPress={() => {
+                    // Handle button press for the specific ilmoitus
+                    console.log(`Button pressed for ilmoitus with ID ${ilmoitus.id}`);
+                }}
+                />
+            ))}
+        </View>
+    );
+  }
+
 }

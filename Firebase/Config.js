@@ -1,5 +1,13 @@
 import {initializeApp} from 'firebase/app'
 import {getFirestore, collection, doc, onSnapshot, query, orderBy, where, serverTimestamp} from 'firebase/firestore'
+import {getFirestore} from 'firebase/firestore'
+import { getAuth} from "firebase/auth";
+/*import AsyncStorage from '@react-native-async-storage/async-storage';
+import {initializeAuth} from 'firebase/auth';
+import {getReactNativePersistence} from 'firebase/auth/react-native';
+*/
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
    apiKey: process.env.EXPO_PUBLIC_API_KEY,
@@ -9,10 +17,12 @@ const firebaseConfig = {
     messagingSenderId: process.env.EXPO_PUBLIC_MESSAGING_SENDER_ID,
     appId: process.env.EXPO_PUBLIC_APP_ID
   };
-  
-  // Initialize Firebase
- initializeApp(firebaseConfig);
-
+ 
+ const app = initializeApp(firebaseConfig);
+ const auth = initializeAuth(app, {
+   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+ });
+ 
  const firestore = getFirestore();
  const USERS = "users";
 
@@ -25,5 +35,6 @@ const firebaseConfig = {
     query,
     orderBy,
     where,
-    serverTimestamp
+    serverTimestamp,
+    auth
  }
