@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { Image, View, StyleSheet, Text } from 'react-native';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
-
+import Screen from '../components/Screen';
 
 function ListingDetailsScreen({ route }) {
   
@@ -28,12 +28,12 @@ if (filePath) {
 ) : (
   <Image style={styles.image} source={require('../assets/noimage.jpg')} />
 )}
- <View style={styles.detailsContainer}>
- <Text style={styles.title}>{listing.title}</Text>
- <Text style={styles.desc}>{listing.description}</Text>
- <Text style={styles.price}>{"Korvaus pyyntö: " + listing.price + "€"}</Text>
- <Text style={styles.price}>{"Tila: " + listing.state}</Text>
- </View>
+        <View style={styles.detailsContainer}>
+          <Text style={styles.title}>{listing.title}</Text>
+          <Text style={styles.desc}>{listing.description}</Text>
+          <Text style={styles.price}>{"Korvaus pyyntö: " + listing.price + "€"}</Text>
+          <Text style={styles.price}>{"Tila: " + listing.state}</Text>
+        </View>
         </Screen>
     );
 }

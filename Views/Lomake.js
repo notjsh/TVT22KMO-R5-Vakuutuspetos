@@ -81,7 +81,7 @@ export default function Lomake({navigation}){
         xhr.send(null);
       });
     
-      const fileRef = ref(getStorage(), "users/"+uuid+"/"+image.substring(image.lastIndexOf('/') + 1, image.length));
+      const fileRef = ref(getStorage(), "users/"+image.substring(image.lastIndexOf('/') + 1, image.length));
       const result = await uploadBytes(fileRef, blob);
     
       // We're done with the blob, close and release it
