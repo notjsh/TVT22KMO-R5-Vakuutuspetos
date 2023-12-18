@@ -1,5 +1,5 @@
-import React, { useLayoutEffect, useState } from "react";
-import { Button, StyleSheet, Image, Alert, ActivityIndicator } from "react-native";
+import React, { useLayoutEffect, useState, useEffect } from "react";
+import { Button, StyleSheet, Image, Alert, ActivityIndicator,LogBox } from "react-native";
 import * as Yup from "yup";
 
 import {
@@ -48,6 +48,11 @@ export default function Lomake({navigation}){
       setImage(iresult.assets[0].uri);
     }
     };
+
+    useEffect(() => {
+      LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+  }, [])
+
     useLayoutEffect(()=>{
         navigation.setOptions({
             headerStyle:{
