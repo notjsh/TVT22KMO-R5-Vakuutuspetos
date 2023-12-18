@@ -137,7 +137,7 @@ export default function Lomake({navigation}){
 
     return (
 
-        <Screen>
+        <Screen style={styles.container}>
           {/* määritellään aloitusarvot */}
           <Form
             initialValues={{

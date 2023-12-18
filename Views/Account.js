@@ -69,7 +69,16 @@ export default function Account({navigation}){
             try {
                 await deleteUser(user);
                 console.log("user deleted");
-                logOut();
+                signOut(auth)
+                AsyncStorage.removeItem('user')
+                .then(()=>{
+                    logOffBroker();
+                    logOffAdmin();
+                    signOuts();
+                })
+                .catch((error)=>{
+                    console.log("errori:", error)
+                })
             } catch (error){
                 console.error("Error deleting user: ", error);
             }

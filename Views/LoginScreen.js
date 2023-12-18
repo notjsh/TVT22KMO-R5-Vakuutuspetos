@@ -15,6 +15,7 @@ const validationSchema = Yup.object().shape({
 
   function LoginScreen(props) {
     const {signIn} = useContext(AuthContext);
+    const {signOuts} = useContext(AuthContext);
     const {isBroker} = useContext(AuthContext);
     const {isAdmin} = useContext(AuthContext);
     const {logOffBroker} = useContext(AuthContext);
@@ -32,22 +33,26 @@ const validationSchema = Yup.object().shape({
     const account = async(user)=>{
       try {
         const unsub = onSnapshot(doc(firestore, USERS, user.uid), (doc)=>{
-          console.log("yritetään",doc.data())
-          rooli = doc.data().type;
-          if(rooli){
-            if(rooli == "admin"){
-              console.log("admin " + rooli);
-              isAdmin();
-            }else{
-              isBroker();
-              console.log("broker " + rooli);
-            }
-          }else{
-            console.log("ei kumpikaan " + rooli);
-            logOffAdmin();
-            logOffBroker();
+          //console.log("yritetään",doc.data())
+          let rooli = "";
+          if (doc.data() && doc.data().type){
+            rooli = doc.data().type;
           }
-})
+            if(rooli){
+              if(rooli == "admin"){
+                console.log("admin " + rooli);
+                isAdmin();
+              }else{
+                isBroker();
+                console.log("broker " + rooli);
+              }
+            }else{
+              console.log("ei kumpikaan " + rooli);
+              logOffAdmin();
+              logOffBroker();
+            }
+          });
+      return unsub;
       } catch (error) {
         console.log(error)
       }
