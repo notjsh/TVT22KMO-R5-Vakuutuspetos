@@ -1,7 +1,6 @@
-import React, { useLayoutEffect, useRef, useState, useEffect } from "react";
-import { Button, StyleSheet, Image, Alert, ActivityIndicator, Pressable, Text, View, LogBox } from "react-native";
+import React, { useLayoutEffect, useState } from "react";
+import { Button, StyleSheet, Image, Alert, ActivityIndicator } from "react-native";
 import * as Yup from "yup";
-
 
 import {
   AppForm as Form,
@@ -11,8 +10,8 @@ import {
 } from "../components/forms";
 import Screen from "../components/Screen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { USERS, collection, firestore, query } from "../Firebase/Config";
-import { addDoc, serverTimestamp, getDoc, onSnapshot, doc } from "firebase/firestore";
+import { collection, firestore, query } from "../Firebase/Config";
+import { addDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import * as ImagePicker from 'expo-image-picker';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -30,17 +29,11 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
     { label: "Koti ja irtaimisto", value: 2 },
     { label: "Muu omaisuus", value: 3 },
   ];
-
 export default function Lomake({navigation}){
   const [image, setImage] = useState(null);
   const [uuid, setUuid] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [senderName, setSenderName] = useState("")
-  const formRef = useRef();
 
-  useEffect(() => {
-    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
-}, [])
 
     const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -58,12 +51,11 @@ export default function Lomake({navigation}){
     useLayoutEffect(()=>{
         navigation.setOptions({
             headerStyle:{
-                backgroundColor: 'steelblue',
+                backgroundColor: 'steelblue'
             }
             
         })
     }, [])
-
     async function uploadImageAsync(uri) {
       // Why are we using XMLHttpRequest? See:
       // https://github.com/expo/expo/issues/2402#issuecomment-443726662
@@ -81,7 +73,7 @@ export default function Lomake({navigation}){
         xhr.send(null);
       });
     
-      const fileRef = ref(getStorage(), "users/"+image.substring(image.lastIndexOf('/') + 1, image.length));
+      const fileRef = ref(getStorage(), "users/"+uuid+"/"+image.substring(image.lastIndexOf('/') + 1, image.length));
       const result = await uploadBytes(fileRef, blob);
     
       // We're done with the blob, close and release it
@@ -89,22 +81,18 @@ export default function Lomake({navigation}){
     
       return await getDownloadURL(fileRef);
     }
-
-    const addReport = async (reportinfo, { resetForm, setFieldValue  }) => {
+    const addReport = async (reportinfo, { resetForm }) => {
       try {
 
         setIsLoading(true); // Näytä latausindikaattori
         const load = await AsyncStorage.getItem('user');
         const userinf = JSON.parse(load);
+    
+        console.log("user", userinf.uid);
         setUuid(userinf.uid);
     
-        const unsub = onSnapshot(doc(firestore, USERS, userinf.uid), (doc)=>{
-          setSenderName(doc.data().name);
-          console.log("lähettäjä", doc.data().name)
-      })
-
-        if (userinf && senderName) {
-          const docRef = collection(firestore, USERS, userinf.uid, 'ilmoitukset');
+        if (userinf) {
+          const docRef = collection(firestore, 'users', userinf.uid, 'ilmoitukset');
     
           // Lisää dokumentti Firestoreen ja hae sen ID
           const addedDocRef = await addDoc(docRef, {
@@ -115,7 +103,6 @@ export default function Lomake({navigation}){
             description: reportinfo.description,
             damageValue: reportinfo.price,
             title: reportinfo.title,
-            sender: senderName,
             picture: image ? image.substring(image.lastIndexOf('/') + 1, image.length) : null,
           });
     
@@ -138,32 +125,16 @@ export default function Lomake({navigation}){
         console.log(error);
       } finally {
         setIsLoading(false); // Piilota latausindikaattori
-        
       }
       console.log("lomaketiedot", reportinfo);
-      resetForm(setFieldValue);
-      setSenderName("");
+      resetForm();
     };
-    
-    function resetForm(setFieldValue) {
-      const initialValues = {
-        title: "",
-        price: "",
-        description: "",
-        category: null,
-        picture: null,
-      };
-    
-      Object.keys(initialValues).forEach((fieldName) => {
-        setFieldValue(fieldName, initialValues[fieldName]);
-      });
-    } 
+
     return (
 
-        <View style={styles.container}>
+        <Screen>
           {/* määritellään aloitusarvot */}
           <Form
-            enableReinitialize
             initialValues={{
               title: "",
               price: "",
@@ -174,7 +145,6 @@ export default function Lomake({navigation}){
             onSubmit={addReport}
             validationSchema={validationSchema}
           >
-            
             <FormField maxLength={255} name="title" placeholder="Otsikko" />
             <Picker items={categories} name="category" placeholder="Valitse kategoria" />
             <FormField
@@ -196,7 +166,7 @@ export default function Lomake({navigation}){
             <SubmitButton title="Lähetä" color="#96bf44"/>
             {isLoading && <ActivityIndicator size="large" color="steelblue" />}
           </Form>
-        </View>
+        </Screen>
       );
     }
 
@@ -204,20 +174,4 @@ const styles = StyleSheet.create({
     container: {
       padding: 10,
     },
-    empty:{
-      backgroundColor: '#c54840',
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 5,
-        width: '50%',
-        marginVertical: 10,
-      fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Avenir',
-    },
-    txt:{
-      color: 'white',
-        fontSize: 10,
-        textTransform: 'uppercase',
-        fontWeight: 'bold'
-    }
   });
