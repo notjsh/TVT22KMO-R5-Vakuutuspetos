@@ -34,6 +34,8 @@ const [ilmoituksetLoated, setIlmoituksetLoated] = useState(false);
 const [refreshing, setRefreshing] = useState(false)
 const [modalVisible, setModalVisible] = useState(false) 
 const [selectedMessage, setSelectedMessage] = useState('') 
+const [answered, setAnswered] = useState(false) 
+const [answer, setAnswer] = useState([]) 
 
 
 useEffect(() => {
@@ -182,7 +184,13 @@ useEffect(() => {
     sender={selectedMessage.sender}
     email={selectedMessage.email}
     />
-    <AnswerCard customer={selectedMessage.userId} viesti={selectedMessage.id}/>
+  <Card 
+    title={answer[0].title}
+    message={answer[0].message} 
+    created={answer[0].created}
+    sender={answer[0].vastaaja}
+  />
+    <AnswerCard customer={selectedMessage.userId} viesti={selectedMessage.id} setAnswered={setAnswered} setAnswer={setAnswer}/>
     </Screen>
 </Modal>
     </Screen>

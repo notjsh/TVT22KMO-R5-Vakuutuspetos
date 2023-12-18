@@ -16,7 +16,7 @@ import {
     description: Yup.string().label("Kirjoita viesti")
   });
 
-function AnswerCard({ navigation, customer, viesti })  {
+function AnswerCard({ navigation, customer, viesti, setAnswered, setAnswer })  {
  const [isLoading, setIsLoading] = useState(false);
 
  const [userinfo, setUserinfo] = useState(null)
@@ -70,6 +70,12 @@ const sendMessage = async (message, { resetForm } ) => {
       });
 
       console.log(addedDocRef)
+      setAnswer([{
+        created: serverTimestamp(),
+        vastaaja: account.name,
+        message: message.message,
+        title: message.title,
+      }])
 
       // Hae lisätyn dokumentin tiedot käyttämällä dokumentin ID:tä
       const addedDocSnapshot = await getDoc(addedDocRef);
@@ -88,6 +94,7 @@ const sendMessage = async (message, { resetForm } ) => {
   }
 
   console.log("viesti lähetetty:", message);
+  setAnswered(true)
   resetForm();
 };
 return(

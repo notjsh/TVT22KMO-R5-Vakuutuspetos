@@ -7,7 +7,7 @@ function Card({ title, typeTitle, message, created, sender, email }) {
             <View style={styles.detailsContainer}>
                 <Text style={styles.title}>{title}</Text>
                 <Text style={styles.message}>{message}</Text>
-                <Text style={styles.typeTitle}>{typeTitle}</Text>
+                {typeTitle && <Text style={styles.typeTitle}>{typeTitle}</Text>}
                 {sender && <Text style={styles.typeTitle}>{sender}</Text>}
                {email && <Text style={styles.typeTitle}>{email}</Text>}
                 <Text style={styles.created}>{created}</Text>
